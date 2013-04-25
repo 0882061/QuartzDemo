@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="simpleJob" class="com.ybase.quart.SimpleQuartJobBean" />
+
+	<!-- 使用JobDetailBean 創建Task的時候，自定義的jobClass 必須實現Quartz接口  -->
+	<!-- <bean id="simpleTask" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="com.ybase.quart.SimpleQuartJobBean" />
+		<property name="targetMethod" ref="execute"/>
+		<property name="concurrent" value="false" />
+		
+	</bean> -->
+	
+	<bean id="simpleTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="simpleJob" />
+		<property name="targetMethod" value="execute" />
+		<property name="concurrent" value="false" />
+		<!-- 使用MethodInvokingJobDetailFactory 創建Task的時候，自定義的Task Class 必須有targetMethod指定的方法(如 execute 注:execute不可以帶參數)，並且該類不需要實現任何的Quartz接口或抽象類  -->
+	</bean>
+	
+	<!-- <bean id="simpleTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"> <property name="targetObject" ref="simpleJob"/> <property name="targetMethod" value="execute"/> 
+		<property name="concurrent" value="false" /> </bean> -->
+
+	<bean name="conTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="simpleTask" />
+		<!-- <property name="startDelay" value="50000" /> -->
+		<!-- <property name="repeatInterval" value="10000" /> -->
+		<!-- <property name="cronExpression" value="0 * 14 24 4 ? 2013"/> -->
+		<property name="cronExpression" value="0 * 9 * * ?" />
+	</bean>
+
+	<bean id="scfactory" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="conTrigger" />
+			</list>
+		</property>
+		<!-- <property name="configLocation" value="classpath:quartz.properties" /> -->
+		<property name="configLocation" value="classpath:quartz.properties" />
+	</bean>
+</beans>
